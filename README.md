@@ -1,2 +1,2 @@
 # springboard_dsct
-Contains code from Springboard Data Science Career Track course. 
+Contains code from the Springboard Data Science Career Track course. 
