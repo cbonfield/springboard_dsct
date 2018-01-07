@@ -111,11 +111,9 @@ def pull_data(params):
 
 # MAIN BODY OF CODE: For every exchange and symbol pair, scrape data via API.
 #
-#exchanges = ['COINBASE', 'POLONIEX', 'KRAKEN', 'BITSTAMP', 'BITFINEX']
-#sym_pairs = [('BTC','USD'),('ETH','USD'), ('LTC','USD'), ('DASH','USD'),
-#             ('XMR','USD')]
-exchanges = ['HITBTC']
-sym_pairs = [('XEM', 'USD')]
+exchanges = ['COINBASE', 'POLONIEX', 'KRAKEN', 'BITSTAMP', 'BITFINEX']
+sym_pairs = [('BTC','USD'),('ETH','USD'), ('LTC','USD'), ('DASH','USD'),
+             ('XMR','USD')]
 
 full_df = pd.DataFrame() # initialize empty data frame
 for sp in sym_pairs:
@@ -129,7 +127,7 @@ for sp in sym_pairs:
         else:
             full_df = pd.concat([full_df, df], axis=0)
 
-full_df.to_csv('xem_data.csv')
+full_df.to_csv('crypto_data_all.csv')
 
 # TEST CODE (uncomment if necessary)
 #
