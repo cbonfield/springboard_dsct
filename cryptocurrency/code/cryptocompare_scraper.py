@@ -14,7 +14,7 @@ import pandas as pd
 def clean_data(df):
     """
     Make data pulled from API neater. As written, this function simply averages
-    closing prices for each cryptocurrency across the five exchanges that I've
+    features for each cryptocurrency across the five exchanges that I've
     chosen to use.
 
     Inputs:
@@ -27,19 +27,24 @@ def clean_data(df):
     df.drop(df.columns[0], axis=1, inplace=True)
     df.set_index('time', inplace=True)
 
-    # Select only relevant columns.
-    sub_df = df[['close','exchange','fsym_tsym']]
-
     # Treat missing values.
-    sub_df.replace(0.0, np.nan, inplace=True)
+    df.replace(0.0, np.nan, inplace=True)
 
-    # Average over exchanges for a given closing price.
-    group_df = sub_df.groupby([sub_df.index,'fsym_tsym']).agg({'close':['mean']})
+    # Construct new features.
+    df['volume'] = df['volumeto'] - df['volumefrom']
+    df['fluctuation'] = (df['high']-df['low']) / (df['open'])
+    df['relative_hl_close'] = (df['close']-df['low']) / (df['high']-df['low'])
 
-    # Unstack hierarchical index, drop a few label levels.
+    # Select only relevant columns.
+    sub_df = df[['close','volume','fluctuation','relative_hl_close',
+                 'exchange','fsym_tsym']]
+
+    # Average over exchanges for all features.
+    group_df = sub_df.groupby([sub_df.index,'fsym_tsym']).agg({'close':[np.nanmean],'volume':[np.nanmean],'fluctuation':[np.nanmean],'relative_hl_close':[np.nanmean]})
+
+    # Drop an irrelevant label, construct hierarchical label for columns.
+    group_df.columns = group_df.columns.droplevel(level=1)
     new_df = group_df.unstack(level='fsym_tsym')
-    new_df.columns = new_df.columns.droplevel()
-    new_df.columns = new_df.columns.droplevel()
 
     return new_df
 
@@ -106,9 +111,11 @@ def pull_data(params):
 
 # MAIN BODY OF CODE: For every exchange and symbol pair, scrape data via API.
 #
-exchanges = ['COINBASE', 'POLONIEX', 'KRAKEN', 'BITSTAMP', 'BITFINEX']
-sym_pairs = [('BTC','USD'),('ETH','USD'), ('LTC','USD'), ('DASH','USD'),
-             ('XMR','USD')]
+#exchanges = ['COINBASE', 'POLONIEX', 'KRAKEN', 'BITSTAMP', 'BITFINEX']
+#sym_pairs = [('BTC','USD'),('ETH','USD'), ('LTC','USD'), ('DASH','USD'),
+#             ('XMR','USD')]
+exchanges = ['HITBTC']
+sym_pairs = [('XEM', 'USD')]
 
 full_df = pd.DataFrame() # initialize empty data frame
 for sp in sym_pairs:
@@ -122,6 +129,8 @@ for sp in sym_pairs:
         else:
             full_df = pd.concat([full_df, df], axis=0)
 
+full_df.to_csv('xem_data.csv')
+
 # TEST CODE (uncomment if necessary)
 #
 #full_df.to_csv('crypto_data_all.csv')
@@ -132,7 +141,7 @@ for sp in sym_pairs:
 # CLEANING CODE (uncomment if you want to do a bit of simplifying - modify the
 # function clean_data above to suit your needs)
 #
-#test = pd.read_csv('crypto_data_all.csv', parse_dates=['time'],
+#test = pd.read_csv('../crypto_data_all.csv', parse_dates=['time'],
 #                   date_parser=dateparse)
-#x = clean_data(test)
-#x.to_csv('cleaned_crypto_closing_prices.csv')
+#x = clean_data(full_df)
+#x.to_csv('cleaned_crypto_all_features_v2.csv')
