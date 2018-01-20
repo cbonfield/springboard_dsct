@@ -2,7 +2,7 @@
 # Script to pull/store cryptocurrency data from cryptocompare.com.
 #
 # Author: C. Bonfield
-# Last Modified: 12/2017
+# Last Modified: 1/2018
 
 # Import statements
 import json
@@ -23,8 +23,7 @@ def clean_data(df):
     Returns:
         new_df: cleaned DF (only average closing prices for each cryptocurrency)
     """
-    # Drop garbage, reset index.
-    df.drop(df.columns[0], axis=1, inplace=True)
+    # Set index.
     df.set_index('time', inplace=True)
 
     # Treat missing values.
@@ -127,11 +126,10 @@ for sp in sym_pairs:
         else:
             full_df = pd.concat([full_df, df], axis=0)
 
-full_df.to_csv('crypto_data_all.csv')
+full_df.to_csv('crypto_data_all.csv', index=False)
 
 # TEST CODE (uncomment if necessary)
 #
-#full_df.to_csv('crypto_data_all.csv')
 #test = {'syms': ('BTC','USD'), 'aggregate': '1', 'limit':'2000',
 #        'exchange': 'CCCAGG'}
 #y = pull_data(test)
@@ -139,7 +137,7 @@ full_df.to_csv('crypto_data_all.csv')
 # CLEANING CODE (uncomment if you want to do a bit of simplifying - modify the
 # function clean_data above to suit your needs)
 #
-#test = pd.read_csv('../crypto_data_all.csv', parse_dates=['time'],
+#test = pd.read_csv('crypto_data_all.csv', parse_dates=['time'],
 #                   date_parser=dateparse)
-#x = clean_data(full_df)
-#x.to_csv('cleaned_crypto_all_features_v2.csv')
+#x = clean_data(full_df) # change full_df to test if loading in crypto_data_all.csv
+#x.to_csv('cleaned_crypto_all_features.csv')
